@@ -302,7 +302,7 @@ ASSET_MANAGER.downloadAll(function () {
                     friction = 1;
                     for (var i = 0; i < gameEngine.entities.length; i++) {
                         if (gameEngine.entities[i].color != 6) {
-                            gameEngine.entities[i].velocity = { x: Math.random() * 500, y: Math.random() * 500 };
+                            gameEngine.entities[i].velocity = { x: Math.random() * 45, y: Math.random() * 45 };
                         }
                     }
                 }
@@ -320,7 +320,7 @@ ASSET_MANAGER.downloadAll(function () {
                     friction = 1;
                     for (var i = 0; i < gameEngine.entities.length; i++) {
                         if (gameEngine.entities[i].color != 6) {
-                            gameEngine.entities[i].velocity = { x: Math.random() * 500, y: Math.random() * 500 };
+                            gameEngine.entities[i].velocity = { x: Math.random() * 45, y: Math.random() * 45 };
                         }
                     }
                 }
