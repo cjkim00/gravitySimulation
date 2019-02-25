@@ -2,6 +2,7 @@
 // GameBoard code below
 var gravityConstant = 0.01;
 var autoPlay = false;
+var io = false;
 function distance(a, b) {
     var dx = a.x - b.x;
     var dy = a.y - b.y;
@@ -18,7 +19,7 @@ function Circle(game) {
     this.colors = ["Red", "Green", "Blue", "White", "Yellow", "Orange", "Purple"];
     this.color = Math.floor(Math.random() * 6);
 
-    //this.setNotIt();
+    this.setNotIt();
     Entity.call(this, game, this.radius + Math.random() * (800 - this.radius * 2), this.radius + Math.random() * (800 - this.radius * 2));
     this.velocity = { x: Math.random() * 1000, y: Math.random() * 1000 };
     var speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
@@ -91,31 +92,32 @@ Circle.prototype.update = function () {
         var ent = this.game.entities[i];
         var dist = distance(this, ent);
         var force = gravityConstant * ((this.mass * ent.mass) / (dist * dist));
+        if (!io) {
+            if (isFinite(force) && this.color == ent.color) {
 
-        if (isFinite(force) && this.color == ent.color) {
-
-            var tempX = this.x - ent.x;
-            var tempY = this.y - ent.y;
-            if (tempX <= 0 && tempY <= 0) {
-                this.x += force;
-                this.y += force;
-                ent.x -= force;
-                ent.y -= force;
-            } else if (tempX <= 0 && tempY >= 0) {
-                this.x += force;
-                this.y -= force;
-                ent.x -= force;
-                ent.y += force;
-            } else if (tempX >= 0 && tempY <= 0) {
-                this.x -= force;
-                this.y += force;
-                ent.x += force;
-                ent.y -= force;
-            } else if (tempX >= 0 && tempY >= 0) {
-                this.x -= force;
-                this.y -= force;
-                ent.x += force;
-                ent.y += force;
+                var tempX = this.x - ent.x;
+                var tempY = this.y - ent.y;
+                if (tempX <= 0 && tempY <= 0) {
+                    this.x += force;
+                    this.y += force;
+                    ent.x -= force;
+                    ent.y -= force;
+                } else if (tempX <= 0 && tempY >= 0) {
+                    this.x += force;
+                    this.y -= force;
+                    ent.x -= force;
+                    ent.y += force;
+                } else if (tempX >= 0 && tempY <= 0) {
+                    this.x -= force;
+                    this.y += force;
+                    ent.x += force;
+                    ent.y -= force;
+                } else if (tempX >= 0 && tempY >= 0) {
+                    this.x -= force;
+                    this.y -= force;
+                    ent.x += force;
+                    ent.y += force;
+                }
             }
         }
         if (ent !== this && this.collide(ent)) {
@@ -128,68 +130,89 @@ Circle.prototype.update = function () {
             this.y += difY * delta / 2;
             ent.x -= difX * delta / 2;
             ent.y -= difY * delta / 2;
-
-            if (this.color == ent.color) {
-                if (this.mass > ent.mass) {
-                    var ThisArea = Math.PI * (this.radius * this.radius);
-                    var EntArea = Math.PI * (ent.radius * ent.radius);
-                    var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
-                    this.mass += ent.mass;
-                    this.radius = newRadius;
-                    ent.mass -= ent.mass;
-                    ent.radius -= ent.radius;
-                } else {
-                    var ThisArea = Math.PI * (this.radius * this.radius);
-                    var EntArea = Math.PI * (ent.radius * ent.radius);
-                    var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
-                    ent.mass += this.mass;
-                    ent.radius = newRadius;
-                    this.mass -= this.mass;
-                    this.radius -= this.radius;
-                }
-                if (this.radius <= 0 || this.mass <= 0) {
-                    this.removeFromWorld = true;
-                }
-                if (ent.radius <= 0 || ent.mass <= 0) {
-                    ent.removeFromWorld = true;
+            if (!io) {
+                if (this.color == ent.color) {
+                    if (this.mass > ent.mass) {
+                        var ThisArea = Math.PI * (this.radius * this.radius);
+                        var EntArea = Math.PI * (ent.radius * ent.radius);
+                        var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
+                        this.mass += ent.mass;
+                        this.radius = newRadius;
+                        ent.mass -= ent.mass;
+                        ent.radius -= ent.radius;
+                    } else {
+                        var ThisArea = Math.PI * (this.radius * this.radius);
+                        var EntArea = Math.PI * (ent.radius * ent.radius);
+                        var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
+                        ent.mass += this.mass;
+                        ent.radius = newRadius;
+                        this.mass -= this.mass;
+                        this.radius -= this.radius;
+                    }
+                    if (this.radius <= 0 || this.mass <= 0) {
+                        this.removeFromWorld = true;
+                    }
+                    if (ent.radius <= 0 || ent.mass <= 0) {
+                        ent.removeFromWorld = true;
+                    }
                 }
             } else {
-                //ent.color = this.color;
+                if (this.color == 6 || ent.color == 6) {
+                    //if (this.mass > ent.mass) {
+                    if (this.color == 6) {
+                        if (this.mass > ent.mass) {
+                            var ThisArea = Math.PI * (this.radius * this.radius);
+                            var EntArea = Math.PI * (ent.radius * ent.radius);
+                            var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
+                            this.mass += ent.mass;
+                            this.radius = newRadius;
+                            ent.mass -= ent.mass;
+                            ent.radius -= ent.radius;
+                        }
+                    }
+
+                    else if (ent.color == 6) {
+                        if (ent.mass > this.mass) {
+                            var ThisArea = Math.PI * (this.radius * this.radius);
+                            var EntArea = Math.PI * (ent.radius * ent.radius);
+                            var newRadius = Math.sqrt((ThisArea + EntArea) / Math.PI);
+                            ent.mass += this.mass;
+                            ent.radius = newRadius;
+                            this.mass -= this.mass;
+                            this.radius -= this.radius;
+                        }
+                    }
+                    if (ent.radius <= 0 || ent.mass <= 0) {
+                        ent.removeFromWorld = true;
+                    }
+                    if (this.radius <= 0 || this.mass <= 0) {
+                        this.removeFromWorld = true;
+                    }
+                }
             }
         }
 
+        if (ent != this && this.collide({ x: ent.x, y: ent.y, radius: this.visualRadius })) {
+            var dist = distance(this, ent);
 
+            if (ent.it && dist > this.radius + ent.radius) {
+                var difX = (ent.x - this.x) / dist;
+                var difY = (ent.y - this.y) / dist;
+                this.velocity.x -= difX * acceleration / (dist * dist);
+                this.velocity.y -= difY * acceleration / (dist * dist);
+                var speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+                if (speed > maxSpeed) {
+                    var ratio = maxSpeed / speed;
+                    this.velocity.x *= ratio;
+                    this.velocity.y *= ratio;
+                }
+            }
+        }
     }
 
 
-    if (ent != this && this.collide({ x: ent.x, y: ent.y, radius: this.visualRadius })) {
-        var dist = distance(this, ent);
-        if (this.it && dist > this.radius + ent.radius + 10) {
-            var difX = (ent.x - this.x) / dist;
-            var difY = (ent.y - this.y) / dist;
-            this.velocity.x += difX * acceleration / (dist * dist);
-            this.velocity.y += difY * acceleration / (dist * dist);
-            var speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-            if (speed > maxSpeed) {
-                var ratio = maxSpeed / speed;
-                this.velocity.x *= ratio;
-                this.velocity.y *= ratio;
-            }
-        }
-        if (ent.it && dist > this.radius + ent.radius) {
-            var difX = (ent.x - this.x) / dist;
-            var difY = (ent.y - this.y) / dist;
-            this.velocity.x -= difX * acceleration / (dist * dist);
-            this.velocity.y -= difY * acceleration / (dist * dist);
-            var speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-            if (speed > maxSpeed) {
-                var ratio = maxSpeed / speed;
-                this.velocity.x *= ratio;
-                this.velocity.y *= ratio;
-            }
-        }
-    }
 
+    /*
     if (autoPlay) {
         if (this.mass >= 1000) {
             for (var i = 0; i < this.mass; i += 100) {
@@ -202,6 +225,7 @@ Circle.prototype.update = function () {
 
         }
     }
+    */
     this.velocity.x -= (1 - friction) * this.game.clockTick * this.velocity.x;
     this.velocity.y -= (1 - friction) * this.game.clockTick * this.velocity.y;
 };
@@ -222,7 +246,7 @@ Circle.prototype.draw = function (ctx) {
 
 // the "main" code begins here
 var friction = 0;
-var acceleration = 50;
+var acceleration = 100000000;
 var maxSpeed = 100;
 
 var ASSET_MANAGER = new AssetManager();
@@ -238,37 +262,7 @@ ASSET_MANAGER.downloadAll(function () {
 
 
     var gameEngine = new GameEngine();
-    /*
-    for (var i = 0; i < 10; i++) {
-        var circle = new Circle(gameEngine);
-        circle.color = 0;
-        gameEngine.addEntity(circle);
-    }
 
-    for (var i = 0; i < 10; i++) {
-        var circle = new Circle(gameEngine);
-        circle.color = 1;
-        gameEngine.addEntity(circle);
-    }
-
-    for (var i = 0; i < 10; i++) {
-        var circle = new Circle(gameEngine);
-        circle.color = 2;
-        gameEngine.addEntity(circle);
-    }
-
-    for (var i = 0; i < 10; i++) {
-        var circle = new Circle(gameEngine);
-        circle.color = 3;
-        gameEngine.addEntity(circle);
-    }
-
-    for (var i = 0; i < 10; i++) {
-        var circle = new Circle(gameEngine);
-        circle.color = 4;
-        gameEngine.addEntity(circle);
-    }
-    */
 
     for (var i = 0; i < 60; i++) {
         var circle = new Circle(gameEngine);
@@ -279,7 +273,8 @@ ASSET_MANAGER.downloadAll(function () {
 
     var circle = new Circle(gameEngine);
     circle.color = 6;
-    circle.setIt();
+    circle.mass = 250;
+    //circle.setIt();
     circle.velocity = { x: 0, y: 0 };
     circle.radius = 50
     circle.speed = 0;
@@ -307,7 +302,25 @@ ASSET_MANAGER.downloadAll(function () {
                     friction = 1;
                     for (var i = 0; i < gameEngine.entities.length; i++) {
                         if (gameEngine.entities[i].color != 6) {
-                            gameEngine.entities[i].velocity = { x: Math.random() * 1000, y: Math.random() * 1000 };
+                            gameEngine.entities[i].velocity = { x: Math.random() * 500, y: Math.random() * 500 };
+                        }
+                    }
+                }
+            } else if (event.keyCode == 67) {
+                if (io) {
+                    io = false;
+                    circle.setNotIt();
+                    friction = 0;
+                    for (var i = 0; i < gameEngine.entities.length; i++) {
+                        gameEngine.entities[i].velocity = { x: 0, y: 0 };
+                    }
+                } else {
+                    io = true;
+                    circle.setIt();
+                    friction = 1;
+                    for (var i = 0; i < gameEngine.entities.length; i++) {
+                        if (gameEngine.entities[i].color != 6) {
+                            gameEngine.entities[i].velocity = { x: Math.random() * 500, y: Math.random() * 500 };
                         }
                     }
                 }
